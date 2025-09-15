@@ -40,9 +40,9 @@ else:
 # Exibir o cronômetro com atualização dinâmica
 cronometro = st.empty()  # Criando o componente vazio
 
+
 # Votação
 if restante > timedelta(seconds=0) and not votos_realizados:
-    exibir_cronometro(r)
     st.title("Vote no seu candidato favorito!")
     # Botões de votação
     for candidato in candidatos:
@@ -52,6 +52,7 @@ if restante > timedelta(seconds=0) and not votos_realizados:
             r.sadd("votantes", ip_usuario)  # Registra que o IP já votou
             r.hincrby("votos", candidato, 1)  # Incrementa o voto para o candidato
             st.success(f"Você votou em {candidato}!")
+    exibir_cronometro(r)
 
 elif restante > timedelta(seconds=0) and votos_realizados:
     # Exibir o status da votação, mas sem os botões
