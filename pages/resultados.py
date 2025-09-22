@@ -1,9 +1,9 @@
-import os
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from redis_config import get_redis_connection
 from cronometro import exibir_cronometro
+from votacao import tempo_restante
 
 r = get_redis_connection()
 if r is None:
@@ -33,10 +33,11 @@ def exibir_resultados():
         st.warning("Ainda não há votos registrados.")
 
 # Lógica de controle de abertura da votação
-if not r.exists("tempo_fim"):
+restante = tempo_restante()
+if restante <= timedelta(seconds=0):
     # Exibir um botão para iniciar a votação
     admin_token = st.text_input("Código de Admin", type="password")
-    if admin_token == "admin123":  # Substitua com um código real de admin, se necessário
+    if admin_token == "admin123":
         st.success("Acesso de administrador concedido!")
         tempo_votacao = st.number_input("Defina o tempo de votação (em minutos)", min_value=1, value=4)
         tempo_votacao = timedelta(minutes=tempo_votacao)  # Definindo o tempo da votação
@@ -44,10 +45,16 @@ if not r.exists("tempo_fim"):
             tempo_fim = datetime.now() + tempo_votacao  # Calcula o tempo de fim
             r.set("tempo_fim", tempo_fim.isoformat())  # Armazena o tempo de fim no Redis
             st.success(f"Votação iniciada! A votação terminará em {tempo_votacao}.")
+        if st.button("Encerrar Votação Agora"):
+            r.set("tempo_fim", datetime.now().isoformat())
+            st.success("✅ Votação encerrada!")
     else:
         st.warning("Você precisa inserir o código de administrador para iniciar a votação.")
 else:
     st.warning("A votação já foi iniciada.")
+    if st.button("Encerrar Votação Agora"):
+            r.set("tempo_fim", datetime.now().isoformat())
+            st.success("✅ Votação encerrada!")
 
 exibir_resultados()
 exibir_cronometro(r)

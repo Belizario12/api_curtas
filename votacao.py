@@ -49,9 +49,9 @@ pagina = st.sidebar.radio("Ir para:", ["Votação", "Resultados"])
 # ----------------- Página de Votação -----------------
 if pagina == "Votação":
     st.title("🗳️ Vote no seu candidato favorito!")
-    st.info("Escolha um candidato abaixo e confirme seu voto.")
 
     if restante > timedelta(seconds=0) and not votos_realizados:
+        st.info("Escolha um candidato abaixo e confirme seu voto.")
         cols = st.columns(2)  # Mostrar 2 candidatos por linha
         for idx, candidato in enumerate(candidatos):
             with cols[idx % 2]:
